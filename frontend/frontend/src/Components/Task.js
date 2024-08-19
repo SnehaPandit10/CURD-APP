@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaUser } from "react-icons/fa";
+import { MdEdit, MdDelete } from "react-icons/md";
 
 const initialState = { title: "", description: "", status: "", due_date: "" };
 
@@ -145,20 +147,19 @@ const Task = () => {
     };
 
     return (
-        <div className="tasks-list">
+        <div className="tasks-list center">
             <div className="task-head flex justify-between row">
-                <h5 className="flex text-xl font-bold col-md-6">{username}</h5>
+                <h5 className="flex text-xl font-bold col-md-6 col-sm-1"><FaUser /> {username}</h5>
                 <button
-                    className="flex text-right px-3 py-3 rounded-lg col-md-2 btn btn-danger text-black"
+                    className="flex text-right px-3 py-3 rounded-lg col-md-2 btn btn-danger logOut"
                     onClick={handleLogout}
-                >
-                    Log Out
+                > Log Out
                 </button>
             </div>
             <div>
                 <h3 className="text-center">Add Task</h3>
-                <form className="space-y-4">
-                    <div style={{ display: "flex", width: "100%" }}>
+                <form className="space-y-4 add-task-form">
+                    <div style={{ display: "flex", width: "50%" }}>
                         <input
                             className="input-fields"
                             type="title"
@@ -196,9 +197,9 @@ const Task = () => {
                             required
                         />
                     </div>
-                    <div style={{ display: "flex", width: "100%", justifyContent: "center" }}>
-                        {isEdit ? <button onClick={handleUpdate}>Update</button> : <button onClick={handleSubmit}>Submit</button>}
-                        <button onClick={() => setFormData(initialState)}>Reset</button>
+                    <div style={{ display: "flex", width: "50%", justifyContent: "center" }}>
+                        {isEdit ? <button onClick={handleUpdate} >Update</button> : <button onClick={handleSubmit}>Submit</button>}
+                        <button onClick={() => setFormData(initialState)} >Reset</button>
                     </div>
                 </form>
             </div>
@@ -219,11 +220,11 @@ const Task = () => {
                                 <td>{task.title}</td>
                                 <td>{task.description}</td>
                                 <td>
-                                    <button style={{ width: "7rem" }} onClick={() => handleEdit(task.id)}>
-                                        Edit
+                                    <button className="btn btn-primary" onClick={() => handleEdit(task.id)}>
+                                        <MdEdit />
                                     </button>
-                                    <button style={{ width: "7rem" }} onClick={() => handleDelete(task.id)}>
-                                        Delete
+                                    <button className="btn btn-danger" onClick={() => handleDelete(task.id)}>
+                                        <MdDelete />
                                     </button>
                                 </td>
                             </tr>
