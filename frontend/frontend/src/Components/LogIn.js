@@ -1,79 +1,55 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const LogIn = () => {
-
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        errorMessage: '',
-    })
+    const [formData, setFormData] = useState({ username: "", password: "" });
+    const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
     const handleInput = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
-    const handleSubmit = async (e) => {
-        const token = localStorage.getItem('token');
-        e.preventDefault();
-        try {
+    };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrorMessage("");
+        try {
             const response = await fetch(`${process.env.REACT_APP_API}/login/`, {
-                method: 'POST',
-                headers: {
-                    // 'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: formData.username,
-                    password: formData.password
-                }),
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
             });
+            const data = await response.json().catch(() => ({}));
             if (response.ok) {
-                const data = await response.json();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("username", data.username);
                 navigate("/tasks");
             } else {
-                const data = await response.json();
-                throw data;
+                setErrorMessage(data.message || "Login failed.");
             }
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
+            setErrorMessage("Cannot reach the server. Check that the backend is running.");
         }
-    }
+    };
 
     return (
-        <div className='container shadow-md rounded-lg login'>
-            <h2 className='text-center'>Log In</h2>
-            <div>
-                <form className='space-y-4' onSubmit={handleSubmit}>
-                    <input
-                        className='input-fields'
-                        type="username"
-                        placeholder='Username'
-                        name='username'
-                        value={formData.username}
-                        onChange={handleInput}
-                        required></input>
-                    <input
-                        className='input-fields'
-                        type="password"
-                        placeholder='Password'
-                        name='password'
-                        value={formData.password}
-                        onChange={handleInput}
-                        required></input>
-                    <button className='btn btn-primary submit-button'>Submit</button>
+        <div className="auth-wrap">
+            <div className="auth-card">
+                <h2>Log in</h2>
+                <p className="sub">Pick up where you left off.</p>
+                <form onSubmit={handleSubmit}>
+                    <input className="input-fields" type="text" placeholder="Username"
+                        name="username" value={formData.username} onChange={handleInput} required />
+                    <input className="input-fields" type="password" placeholder="Password"
+                        name="password" value={formData.password} onChange={handleInput} required />
+                    {errorMessage && <p className="error-text">{errorMessage}</p>}
+                    <button type="submit" className="btn btn-primary">Log in</button>
                 </form>
-                {formData.errorMessage && <p style={{ color: "red", textAlign: "center" }}>Error: {formData.errorMessage}</p>}
-
+                <p className="switch">Don't have an account?<Link to="/signup/">Sign up</Link></p>
             </div>
-            <p className='text-center'>Don't have an account? <a href='/signup/' >SignUp</a></p>
         </div>
     );
-}
-
+};
 
 export default LogIn;

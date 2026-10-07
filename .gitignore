@@ -1,0 +1,1 @@
+printf "__pycache__/\n*.pyc\nvenv/\n.venv/\ndb.sqlite3\nstaticfiles/\nnode_modules/\n.env\n" > .gitignore

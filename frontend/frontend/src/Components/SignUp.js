@@ -1,73 +1,64 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        confirmpassword: '',
-        errorMessage: '',
-    })
-
+        username: "", email: "", password: "", confirmpassword: "",
+    });
+    const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
 
     const handleInput = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    }
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const { username, email, password, confirmpassword } = formData;
-        if (password !== confirmpassword) {
-            setFormData({ ...formData, errorMessage: 'Passwords do not match' });
-            return;
-        }
-        try {
-            const response = await fetch(`${process.env.REACT_APP_API}/signup/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email, password }),
-            });
-            console.log('Response:', await response.text());
-            if (response.ok) {
-                navigate('/');
-            }
-            else {
-                const data = await response.json();
-                setFormData({ ...formData, errorMessage: data.message });
-            }
-        }
-        catch (error) {
-            console.error('Error:', error);
-            setFormData({ ...formData, errorMessage: 'Something went wrong. Please try again.' })
-        }
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+    const { username, email, password, confirmpassword } = formData;
+    if (password !== confirmpassword) {
+        setErrorMessage("Passwords do not match.");
+        return;
+    }
+    try {
+        const response = await fetch(`${process.env.REACT_APP_API}/signup/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.ok) {
+            navigate("/");
+        } else {
+            setErrorMessage(data.message || `Sign up failed (error ${response.status}).`);
+        }
+    } catch (error) {
+        console.error(error);
+        setErrorMessage("Cannot reach the server. Check that the backend is running.");
+    }
+};
 
     return (
-        <div className='container mx-auto p-4 max-w-sm shadow-md rounded-lg signup'>
-            <h2 className='text-center'>Sign Up</h2>
-            <div>
-                <form className='space-y-4' onSubmit={handleSubmit}>
-                    <input className='input-fields'
-                        type="text" placeholder='Username' name='username' value={formData.username} onChange={handleInput} required></input>
-                    <input className='input-fields'
-                        type="email" placeholder='Email' name='email' value={formData.email} onChange={handleInput} required></input>
-                    <input className='input-fields'
-                        type="password" placeholder='Password' name='password' value={formData.password} onChange={handleInput} required></input>
-                    <input className='input-fields'
-                        type="password" placeholder='Confirm Password' name='confirmpassword' value={formData.confirmpassword} onChange={handleInput} required></input>
-                    <button className='btn btn-primary submit-button'>Submit</button>
+        <div className="auth-wrap">
+            <div className="auth-card">
+                <h2>Create account</h2>
+                <p className="sub">Start tracking your tasks.</p>
+                <form onSubmit={handleSubmit}>
+                    <input className="input-fields" type="text" placeholder="Username"
+                        name="username" value={formData.username} onChange={handleInput} required />
+                    <input className="input-fields" type="email" placeholder="Email"
+                        name="email" value={formData.email} onChange={handleInput} required />
+                    <input className="input-fields" type="password" placeholder="Password"
+                        name="password" value={formData.password} onChange={handleInput} required />
+                    <input className="input-fields" type="password" placeholder="Confirm password"
+                        name="confirmpassword" value={formData.confirmpassword} onChange={handleInput} required />
+                    {errorMessage && <p className="error-text">{errorMessage}</p>}
+                    <button type="submit" className="btn btn-primary">Create account</button>
                 </form>
+                <p className="switch">Already have an account?<Link to="/">Log in</Link></p>
             </div>
-            <p className='text-center'>Already have an account?<a href='/' >LogIn</a></p>
         </div>
     );
-}
-
+};
 
 export default SignUp;
